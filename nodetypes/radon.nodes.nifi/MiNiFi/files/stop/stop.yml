@@ -1,0 +1,10 @@
+
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Stop minifi service
+      service:
+        name: minifi
+        enabled: no
+        state: stopped

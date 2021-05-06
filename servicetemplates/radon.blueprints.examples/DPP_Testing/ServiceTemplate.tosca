@@ -1,0 +1,184 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+metadata:
+  targetNamespace: "radon.blueprints.examples"
+topology_template:
+  node_templates:
+    Nifi_1:
+      type: radon.nodes.nifi.Nifi
+      metadata:
+        x: "1042"
+        y: "550"
+        displayName: "Nifi"
+      properties:
+        port: 8080
+        component_version: "1.14.1"
+      requirements:
+        - host:
+            node: OpenStack_0
+            relationship: con_HostedOn_4
+            capability: host
+    Encrypt_0:
+      type: radon.nodes.datapipeline.process.Encrypt
+      metadata:
+        x: "636"
+        y: "209"
+        displayName: "Encrypt"
+      properties:
+        password: "Bye"
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "test"
+        Password: "wrong"
+      requirements:
+        - ConnectToPipeline:
+            node: Decrypt_0
+            relationship: con_ConnectNifiLocal_2
+            capability: ConnectToPipelineRemote
+        - host:
+            node: Nifi_0
+            relationship: con_HostedOn_3
+            capability: host
+    PublishLocal_0:
+      type: radon.nodes.datapipeline.destination.PublishLocal
+      metadata:
+        x: "1313"
+        y: "332"
+        displayName: "PublishLocal"
+      properties:
+        create_if_missing: true
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "test"
+        directory: "test"
+      requirements:
+        - host:
+            node: Nifi_1
+            relationship: con_HostedOn_6
+            capability: host
+    ConsS3Bucket_0:
+      type: radon.nodes.datapipeline.source.ConsS3Bucket
+      metadata:
+        x: "225"
+        y: "213"
+        displayName: "ConsS3Bucket"
+      properties:
+        BucketName: "test"
+        cred_file_path: "test"
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "test"
+        Region: "test"
+      requirements:
+        - connectToPipeline:
+            node: Encrypt_0
+            relationship: con_ConnectNifiLocal_3
+            capability: ConnectToPipelineRemote
+        - connectToPipelineRemote:
+            node: Encrypt_0
+            relationship: con_ConnectNifiRemote_0
+            capability: ConnectToPipeline
+        - host:
+            node: Nifi_0
+            relationship: con_HostedOn_2
+            capability: host
+    AwsPlatform_0:
+      type: radon.nodes.aws.AwsPlatform
+      metadata:
+        x: "436"
+        y: "748"
+        displayName: "AwsPlatform"
+      properties:
+        name: "AWS"
+        region: "eu-west-1"
+    Decrypt_0:
+      type: radon.nodes.datapipeline.process.Decrypt
+      metadata:
+        x: "1048"
+        y: "205"
+        displayName: "Decrypt"
+      properties:
+        password: "hello"
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "test"
+        Password: "write"
+      requirements:
+        - ConnectToPipeline:
+            node: PublishLocal_0
+            relationship: con_ConnectNifiLocal_1
+            capability: ConnectToPipelineRemote
+        - host:
+            node: Nifi_1
+            relationship: con_HostedOn_5
+            capability: host
+    OpenStack_0:
+      type: radon.nodes.VM.OpenStack
+      metadata:
+        x: "1034"
+        y: "740"
+        displayName: "OpenStack"
+      properties:
+        flavor: "test"
+        key_name: "test"
+        image: "test"
+        ssh_username: "test"
+        name: "test"
+        network: "test"
+    Nifi_0:
+      type: radon.nodes.nifi.Nifi
+      metadata:
+        x: "405"
+        y: "452"
+        displayName: "Nifi"
+      properties:
+        port: 8080
+        component_version: "1.14.1"
+      requirements:
+        - host:
+            node: EC2_0
+            relationship: con_HostedOn_1
+            capability: host
+    EC2_0:
+      type: radon.nodes.VM.EC2
+      metadata:
+        x: "418"
+        y: "598"
+        displayName: "EC2"
+      properties:
+        image: "ami-00890f614e48ce866"
+        ssh_key_name: "test"
+        vpc_subnet_id: "test"
+        instance_type: "t2.micro"
+        ssh_key_file: "test"
+        ssh_user: "test"
+      requirements:
+        - host:
+            node: AwsPlatform_0
+            relationship: con_HostedOn_0
+            capability: host
+  relationship_templates:
+    con_HostedOn_2:
+      type: tosca.relationships.HostedOn
+    con_ConnectNifiLocal_3:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_HostedOn_3:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_0:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_1:
+      type: tosca.relationships.HostedOn
+    con_ConnectNifiLocal_0:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_ConnectNifiLocal_2:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_ConnectNifiLocal_1:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_ConnectNifiRemote_0:
+      type: radon.relationships.datapipeline.ConnectNifiRemote
+    con_HostedOn_6:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_4:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_5:
+      type: tosca.relationships.HostedOn

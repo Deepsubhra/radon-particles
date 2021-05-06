@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Delete MiNiFi files
+      file:
+        state: absent
+        path: "/usr/local/bin/minifi-{{ tarball_version }}/"

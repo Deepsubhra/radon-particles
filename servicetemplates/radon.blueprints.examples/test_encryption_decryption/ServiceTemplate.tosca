@@ -1,0 +1,157 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+metadata:
+  targetNamespace: "radon.blueprints.examples"
+topology_template:
+  node_templates:
+    Nifi_1:
+      type: radon.nodes.nifi.Nifi
+      metadata:
+        x: "1031"
+        y: "411"
+        displayName: "Nifi"
+      properties:
+        port: 8080
+        component_version: "nn"
+      requirements:
+        - host:
+            node: OpenStack_1
+            relationship: con_HostedOn_2
+            capability: host
+    OpenStack_1:
+      type: radon.nodes.VM.OpenStack
+      metadata:
+        x: "996"
+        y: "647"
+        displayName: "OpenStack"
+      properties:
+        flavor: "nn"
+        key_name: "nn"
+        image: "nn"
+        ssh_username: "nn"
+        name: "nn"
+        network: "nn"
+    Encrypt_0:
+      type: radon.nodes.datapipeline.process.Encrypt
+      metadata:
+        x: "585"
+        y: "81"
+        displayName: "Encrypt"
+      properties:
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        Password: "pass"
+      requirements:
+        - ConnectToPipelineRemote:
+            node: Decrypt_0
+            relationship: con_ConnectNifiRemote_0
+            capability: ConnectToPipelineRemote
+        - host:
+            node: Nifi_0
+            relationship: con_HostedOn_5
+            capability: host
+    ConsS3Bucket_0:
+      type: radon.nodes.datapipeline.source.ConsS3Bucket
+      metadata:
+        x: "206"
+        y: "166"
+        displayName: "ConsS3Bucket"
+      properties:
+        BucketName: "nn"
+        cred_file_path: "nn"
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "nn"
+        Region: "nn"
+      requirements:
+        - connectToPipeline:
+            node: Encrypt_0
+            relationship: con_ConnectNifiLocal_1
+            capability: ConnectToPipelineRemote
+        - host:
+            node: Nifi_0
+            relationship: con_HostedOn_1
+            capability: host
+    PubsS3Bucket_0:
+      type: radon.nodes.datapipeline.destination.PubsS3Bucket
+      metadata:
+        x: "1325"
+        y: "185"
+        displayName: "PubsS3Bucket"
+      properties:
+        BucketName: "nn"
+        cred_file_path: "nn"
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        name: "nn"
+        Region: "nn"
+      requirements:
+        - host:
+            node: Nifi_1
+            relationship: con_HostedOn_3
+            capability: host
+    Decrypt_0:
+      type: radon.nodes.datapipeline.process.Decrypt
+      metadata:
+        x: "986"
+        y: "83"
+        displayName: "Decrypt"
+      properties:
+        schedulingStrategy: "EVENT_DRIVEN"
+        schedulingPeriodCRON: "* * * * * ?"
+        Password: "word"
+      requirements:
+        - ConnectToPipeline:
+            node: PubsS3Bucket_0
+            relationship: con_ConnectNifiLocal_0
+            capability: ConnectToPipelineRemote
+        - host:
+            node: Nifi_1
+            relationship: con_HostedOn_4
+            capability: host
+    OpenStack_0:
+      type: radon.nodes.VM.OpenStack
+      metadata:
+        x: "479"
+        y: "638"
+        displayName: "OpenStack"
+      properties:
+        flavor: "nn"
+        key_name: "nn"
+        image: "nn"
+        ssh_username: "nn"
+        name: "nn"
+        network: "nn"
+    Nifi_0:
+      type: radon.nodes.nifi.Nifi
+      metadata:
+        x: "372"
+        y: "349"
+        displayName: "Nifi"
+      properties:
+        port: 8080
+        component_version: "nn"
+      requirements:
+        - host:
+            node: OpenStack_0
+            relationship: con_HostedOn_0
+            capability: host
+  relationship_templates:
+    con_HostedOn_2:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_3:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_0:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_1:
+      type: tosca.relationships.HostedOn
+    con_ConnectNifiLocal_0:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_ConnectNifiLocal_1:
+      type: radon.relationships.datapipeline.ConnectNifiLocal
+    con_ConnectNifiRemote_0:
+      type: radon.relationships.datapipeline.ConnectNifiRemote
+    con_HostedOn_4:
+      type: tosca.relationships.HostedOn
+    con_HostedOn_5:
+      type: tosca.relationships.HostedOn

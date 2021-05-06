@@ -1,0 +1,73 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+node_types:
+  radon.nodes.nifi.MiNiFi:
+    derived_from: tosca.nodes.SoftwareComponent
+    metadata:
+      targetNamespace: "radon.nodes.nifi"
+      abstract: "false"
+      final: "false"
+    properties:
+      port:
+        type: string
+        description: Port for MiNiFi
+        default: 8081
+      component_version:
+        type: string
+        description: Version of Apache MiNiFi
+    capabilities:
+      host:
+        occurrences: [ 1, UNBOUNDED ]
+        type: tosca.capabilities.Container
+    interfaces:
+      Standard:
+        type: tosca.interfaces.node.lifecycle.Standard
+        operations:
+          stop:
+            description: The standard stop operation
+            implementation:
+              primary: stop
+              timeout: 0
+          start:
+            description: The standard start operation
+            inputs:
+              tarball_version:
+                type: string
+                required: true
+                default: { get_property: [ SELF, component_version ] }
+            implementation:
+              primary: start
+              timeout: 0
+          create:
+            description: The standard create operation
+            inputs:
+              tarball_version:
+                type: string
+                required: true
+                default: { get_property: [ SELF, component_version ] }
+            implementation:
+              primary: create
+              timeout: 0
+          delete:
+            description: The standard delete operation
+            inputs:
+              tarball_version:
+                type: string
+                required: true
+                default: { get_property: [ SELF, component_version ] }
+            implementation:
+              primary: delete
+              timeout: 0
+    artifacts:
+      stop:
+        type: tosca.artifacts.File
+        file: stop.yml
+      start:
+        type: tosca.artifacts.File
+        file: start.yml
+      create:
+        type: tosca.artifacts.File
+        file: create.yml
+      delete:
+        type: tosca.artifacts.File
+        file: delete.yml

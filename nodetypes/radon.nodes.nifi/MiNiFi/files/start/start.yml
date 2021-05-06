@@ -1,0 +1,7 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Start minifi services on Raspbian
+      shell: "nohup /usr/local/bin/minifi-{{ tarball_version }}/bin/minifi.sh start  </dev/null >/dev/null 2>&1 &"
+ 
