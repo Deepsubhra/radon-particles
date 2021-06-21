@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache 
+      shell: apt-get update
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: Install Java 11 Raspbian
+      apt:
+        name: "openjdk-11-jdk"
+        state: present
+        update_cache: yes
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+
+
+    - name: Download and unpack MiNiFi binary distribution
+      unarchive:
+        src: https://downloads.apache.org/nifi/minifi/{{ tarball_version }}/minifi-{{ tarball_version }}-bin.tar.gz
+        dest: /usr/local/bin
+        remote_src: yes
+        creates: /usr/local/bin/minifi-{{ tarball_version }}/LICENSE
+
+    - name: Install minifi service
+      shell: "/usr/local/bin/minifi-{{ tarball_version }}/bin/minifi.sh install"
+      args: 
+        executable: /bin/bash
+
+

@@ -1,0 +1,33 @@
+tosca_definitions_version: tosca_simple_yaml_1_3
+
+metadata:
+  targetNamespace: "example.org.tosca.servicetemplates"
+topology_template:
+  node_templates:
+    MiNiFi_0:
+      type: radon.nodes.nifi.MiNiFi
+      metadata:
+        x: "660"
+        y: "141"
+        displayName: "MiNiFi"
+      properties:
+        port: 8081
+        component_version: "0.5.0"
+      requirements:
+        - host:
+            node: RPi_0
+            relationship: con_HostedOn_0
+            capability: host
+    RPi_0:
+      type: radon.nodes.RPi
+      metadata:
+        x: "666"
+        y: "288"
+        displayName: "RPi"
+      properties:
+        ip: "172.17.141.30"
+        key: "/home/ubuntu/.ssh/deep_pi"
+        username: "pi"
+  relationship_templates:
+    con_HostedOn_0:
+      type: tosca.relationships.HostedOn
